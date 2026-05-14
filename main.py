@@ -51,3 +51,30 @@ if TOKEN:
     bot.run(TOKEN)
 else:
     print("FEHLER: Kein DISCORD_TOKEN in der .env Datei gefunden!")
+import psutil
+import platform
+from datetime import datetime
+
+@bot.command()
+async def status(ctx):
+    # CPU Last
+    cpu_usage = psutil.cpu_percent(interval=1)
+    
+    # RAM Info
+    ram = psutil.virtual_memory()
+    ram_used = round(ram.used / (1024 ** 3), 2)
+    ram_total = round(ram.total / (1024 ** 3), 2)
+    
+    # Festplatte
+    disk = psutil.disk_usage('/')
+    disk_free = round(disk.free / (1024 ** 3), 2)
+
+    # Schickes Embed für Discord
+    embed = discord.Embed(title="🖥️ Server Status", color=0x00ff00)
+    embed.add_field(name="CPU Last", value=f"{cpu_usage}%", inline=True)
+    embed.add_field(name="RAM Nutzung", value=f"{ram_used}GB / {ram_total}GB", inline=True)
+    embed.add_field(name="Speicher frei", value=f"{disk_free} GB", inline=True)
+    embed.add_field(name="Betriebssystem", value=f"{platform.system()} {platform.release()}", inline=False)
+    embed.set_footer(text=f"Abgefragt um {datetime.now().strftime('%H:%M:%S')}")
+
+    await ctx.send(embed=embed)
